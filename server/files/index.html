@@ -5,25 +5,173 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movies!</title>
+
     <style>
         /* Part 3: Your styling goes here */
-    </style>
-    <script>
-        function reverseString(s) {
-            return s.split("").reverse().join("");
+
+        body {
+            font-family: 'Trebuchet MS', sans-serif;
+            background-color: #cfcccc;
+            margin: 0;
+            padding: 20px;
         }
 
+        article {
+            background-color: white;
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 15px;
+            max-width: 700px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        img {
+            max-width: 200px;
+            border-radius: 10px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .genre {
+            background-color: #d3d3d3;
+            padding: 5px 10px;
+            margin-right: 5px;
+            margin-top: 5px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        p {
+            margin: 8px 0;
+        }
+
+        article:hover {
+            transform: scale(1.01);
+            transition: 0.2s;
+        }
+    </style>
+
+    <script>
         window.onload = function () {
             const xhr = new XMLHttpRequest()
+
             xhr.onload = function () {
                 const bodyElement = document.querySelector("body")
+
                 if (xhr.status == 200) {
-		            /* Part 2: Build the HTML elements here and append them to the body */ 
-                    bodyElement.append(reverseString(xhr.responseText))
+
+                    /* Part 2: Build the HTML elements here and append them to the body */
+
+                    const movies = JSON.parse(xhr.responseText);
+
+                    movies.forEach(function(movie) {
+
+                        const article = document.createElement("article");
+
+                        // Poster
+                        const img = document.createElement("img");
+                        img.src = movie.Poster;
+
+                        // Title
+                        const title = document.createElement("h1");
+                        title.textContent = movie.Title;
+
+                        // Info (runtime + date)
+                        const info = document.createElement("p");
+
+                        const hours = Math.floor(movie.Runtime / 60);
+                        const minutes = movie.Runtime % 60;
+                        const formattedRuntime = hours + "h " + minutes + "m";
+
+                        const date = new Date(movie.Released);
+                        const formattedDate =
+                            (date.getMonth() + 1) + "/" +
+                            date.getDate() + "/" +
+                            date.getFullYear();
+
+                        info.textContent = "Runtime " + formattedRuntime + " • Released on " + formattedDate;
+
+                        // Genres
+                        const genresDiv = document.createElement("div");
+                        movie.Genres.forEach(function(genre) {
+                            const span = document.createElement("span");
+                            span.textContent = genre;
+                            span.className = "genre";
+                            genresDiv.appendChild(span);
+                        });
+
+                        // Plot
+                        const plot = document.createElement("p");
+                        plot.textContent = movie.Plot;
+
+                        // Directors
+                        const directorsTitle = document.createElement("h3");
+                        directorsTitle.textContent = "Directors";
+
+                        const directorsList = document.createElement("ul");
+                        movie.Directors.forEach(function(d) {
+                            const li = document.createElement("li");
+                            li.textContent = d;
+                            directorsList.appendChild(li);
+                        });
+
+                        // Writers
+                        const writersTitle = document.createElement("h3");
+                        writersTitle.textContent = "Writers";
+
+                        const writersList = document.createElement("ul");
+                        movie.Writers.forEach(function(w) {
+                            const li = document.createElement("li");
+                            li.textContent = w;
+                            writersList.appendChild(li);
+                        });
+
+                        // Actors
+                        const actorsTitle = document.createElement("h3");
+                        actorsTitle.textContent = "Actors";
+
+                        const actorsList = document.createElement("ul");
+                        movie.Actors.forEach(function(a) {
+                            const li = document.createElement("li");
+                            li.textContent = a;
+                            actorsList.appendChild(li);
+                        });
+
+                        // Ratings
+                        const rating = document.createElement("p");
+                        rating.textContent = "Metascore: " + movie.Metascore + " | IMDb: " + movie.imdbRating;
+
+                        // Append everything
+                        article.appendChild(img);
+                        article.appendChild(title);
+                        article.appendChild(info);
+                        article.appendChild(genresDiv);
+                        article.appendChild(plot);
+                        article.appendChild(directorsTitle);
+                        article.appendChild(directorsList);
+                        article.appendChild(writersTitle);
+                        article.appendChild(writersList);
+                        article.appendChild(actorsTitle);
+                        article.appendChild(actorsList);
+                        article.appendChild(rating);
+
+                        bodyElement.appendChild(article);
+                    });
+
                 } else {
                     bodyElement.append("Daten konnten nicht geladen werden, Status " + xhr.status + " - " + xhr.statusText)
                 }
             }
+
             xhr.open("GET", "/movies")
             xhr.send()
         }
